@@ -14,6 +14,7 @@ import (
 	"net"
 	"net/http"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -81,6 +82,10 @@ func (c *Client) GetMetaData(ctx context.Context) (*MetaData, error) {
 		log.Printf("[DEBUG] Unrecognised metadata response for %s: %s", uri, respBody)
 		return nil, fmt.Errorf("unmarshaling response: %+v", err)
 	}
+
+	// Cut trailing / character which may be returned by the Azure API in some environments
+	// Good defensive practice to make the lives of the consumers of this library easier.
+	metadata.ResourceManager, _ = strings.CutSuffix(metadata.ResourceManager, "/")
 
 	return &MetaData{
 		Authentication: Authentication{

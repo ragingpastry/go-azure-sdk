@@ -172,6 +172,12 @@ type provisioningStateResultProperties struct {
 }
 
 func resourceManagerResourcePathFromUri(input string) (*string, error) {
+	// If our input has an extra / character then we will accidently cut off
+	// the resourcePath. This might happen in some environments.
+	if strings.HasPrefix(input, "//") {
+		input, _ = strings.CutPrefix(input, "/")
+	}
+
 	parsed, err := url.ParseRequestURI(input)
 	if err != nil {
 		return nil, fmt.Errorf("parsing %q: %+v", input, err)
